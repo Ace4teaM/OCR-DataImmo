@@ -100,10 +100,10 @@ having count(v.vente_id) >= 50
 ;
 
 -- Différence en pourcentage du prix au mètre carré entre un appartement de 2 pièces et un appartement de 3 pièces
-select round(((b2.valeur - b1.valeur) / b2.valeur) * 100) as percent, b1.valeur as moy_2_pieces, b2.valeur as moy_3_pieces
+select abs(round(((b2.valeur - b1.valeur) / b2.valeur) * 100)) as percent, b1.valeur as moy_2_pieces, b2.valeur as moy_3_pieces
 from
-    (select round(avg(v.valeur_fonciere)) as valeur from bien b join vente v on v.bien_id = b.bien_id where b.type_local = 'Appartement' and b.nombre_pieces = 2) b1, -- moyenne = 1 résultat
-    (select round(avg(v.valeur_fonciere)) as valeur from bien b join vente v on v.bien_id = b.bien_id where b.type_local = 'Appartement' and b.nombre_pieces = 3) b2  -- moyenne = 1 résultat
+    (select round(avg(v.valeur_fonciere / b.surface_carrez)) as valeur from bien b join vente v on v.bien_id = b.bien_id where b.type_local = 'Appartement' and b.nombre_pieces = 2) b1, -- moyenne = 1 résultat
+    (select round(avg(v.valeur_fonciere / b.surface_carrez)) as valeur from bien b join vente v on v.bien_id = b.bien_id where b.type_local = 'Appartement' and b.nombre_pieces = 3) b2  -- moyenne = 1 résultat
 ;
 	
 --  Les moyennes de valeurs foncières pour le top 3 des communes des départements 6, 13, 33, 59 et 69
