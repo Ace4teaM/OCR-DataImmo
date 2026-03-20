@@ -2,8 +2,9 @@
 select count(*) as ventes
 from vente v
 inner join bien b on b.bien_id = v.bien_id
-where v.date_mutation between '2020-01-01' and '2020-06-30' and b.type_local = 'Appartement' -- jusqu'au 1er semestre 2020
+where v.date_mutation >= '2020-01-01' and v.date_mutation < '2020-07-01' and b.type_local = 'Appartement' -- au 1er semestre 2020
 ;
+
 -- Le nombre de ventes d’appartement par région pour le 1er semestre 2020
 select count(v.vente_id), r.reg_nom
 from vente v
@@ -12,7 +13,7 @@ inner join adresse a on a.adresse_id = v.adresse_id
 inner join commune c on c.com_id = a.com_id
 inner join departement d on d.dep_id = c.dep_id
 inner join region r on r.reg_id = d.reg_id
-where v.date_mutation between '2020-01-01' and '2020-06-30' and b.type_local = 'Appartement' -- jusqu'au 1er semestre 2020
+where v.date_mutation >= '2020-01-01' and v.date_mutation < '2020-07-01' and b.type_local = 'Appartement' -- au 1er semestre 2020
 group by r.reg_nom
 order by count(v.vente_id) desc
 ;
@@ -60,15 +61,15 @@ limit 10
 ;
 
 -- Taux d’évolution du nombre de ventes entre le premier et le second trimestre de 2020
-select max(ventes) - min (ventes) as ventes
+select max(ventes) - min (ventes) as ventes, min (ventes) as min, max(ventes) as max
 from (
-select count(*) as ventes, '2020-03-01' as date
+select count(*) as ventes
 from vente v
-where v.date_mutation < '2020-03-01' -- jusqu'au 1er trimestre 2020
+where v.date_mutation < '2020-04-01' -- jusqu'au 1er trimestre 2020
 UNION
-select count(*) as ventes, '2020-06-01' as date
+select count(*) as ventes
 from vente v
-where v.date_mutation < '2020-06-01' -- jusqu'au 2eme trimestre 2020
+where v.date_mutation < '2020-07-01' -- jusqu'au 2eme trimestre 2020
 )
 ;
 
@@ -93,7 +94,7 @@ from vente v
 inner join bien b on b.bien_id = v.bien_id
 inner join adresse a on a.adresse_id = v.adresse_id
 inner join commune c on c.com_id = a.com_id
-where v.date_mutation between '2020-01-01' and '2020-03-31' -- au 1er trimestre 2020
+where v.date_mutation >= '2020-01-01' and v.date_mutation < '2020-04-01' -- au 1er trimestre 2020
 group by c.com_id
 having count(v.vente_id) >= 50
 ;
@@ -124,7 +125,7 @@ limit 3
 --  Les 20 communes avec le plus de transactions pour 1000 habitants pour les communes qui dépassent les 10 000 habitants
 select top.com_nom, top.com_id, top.ventes, pop.populations, ROUND((top.ventes * 1000.0) / pop.populations, 2) as ventes_par_population
 from
-( -- Les communes avec le plus de transactions
+( -- nombre de transactions par communes
 select c.com_id, c.com_nom, count(v.vente_id) as ventes
 from commune c
 inner join adresse a on a.com_id = c.com_id
